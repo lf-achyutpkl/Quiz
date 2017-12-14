@@ -3,7 +3,8 @@ import {
   Text,
   View
 } from 'react-native';
-import _shuffle from 'lodash/shuffle'
+import _shuffle from 'lodash/shuffle';
+import moment from 'moment';
 
 import styles from './styles';
 import {url} from '../../config/urls';
@@ -18,9 +19,10 @@ class Questions extends Component{
     super();
 
     this.state = {
-      time: 0,
+      startTime: 0,
       questions: [],
       isLoading: true,
+      totalTimeTaken: 0,
       wrongAnswer: false,
       currentQuestionIndex: 0
     };
@@ -41,7 +43,7 @@ class Questions extends Component{
 
     if(this.state.wrongAnswer || (this.state.currentQuestionIndex === 10)){
       return (
-        <GameOver finalScore={this.state.currentQuestionIndex}/>
+        <GameOver finalScore={this.state.currentQuestionIndex} totalTime={this._calculateTimeTaken()}/>
       )
     }
 
@@ -59,7 +61,7 @@ class Questions extends Component{
 
   _fetchAllQuestions = () => {
     this.setState({isLoading: true});
-    get(url.QUESTION).then(response => this.setState({questions: response.results, isLoading: false}));
+    get(url.QUESTION).then(response => this.setState({questions: response.results, isLoading: false, startTime: moment()}));
     
   }
 
@@ -67,7 +69,7 @@ class Questions extends Component{
     if(selectedAnswer === this.state.questions[this.state.currentQuestionIndex].correct_answer){
       this.setState({currentQuestionIndex: this.state.currentQuestionIndex + 1})
     } else {
-      this.setState({wrongAnswer: true});
+      this.setState({wrongAnswer: true, totalTimeTaken: this._calculateTimeTaken()})
     }
   }
 
@@ -75,6 +77,11 @@ class Questions extends Component{
     let options = this.state.questions[this.state.currentQuestionIndex].incorrect_answers;
     options.push(this.state.questions[this.state.currentQuestionIndex].correct_answer);
     return _shuffle(options);
+  }
+
+  _calculateTimeTaken = () => {
+    let endTime = moment();
+    return `${endTime.diff(this.state.startTime, 'minutes')} minute(s) : ${endTime.diff(this.state.startTime, 'seconds')} second(s)`;
   }
 
 }

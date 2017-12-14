@@ -13,6 +13,7 @@ const GameOver = (props) => {
         <View>
           <Text>Game Over</Text>
           <Text>Your final score is: {props.finalScore}</Text>
+          <Text>Total time taken is: {props.totalTime}</Text>
           <Button label='Play Again' onPress={() => Actions.home({type: ActionConst.RESET})}/>
         </View>
       );
